@@ -1,68 +1,52 @@
 class PlaylistEndpoint {
-  var ytClient: HttpClient
-  var spClient: HttpClient
-  let YT_KEY = "AIzaSyDQ8goZaggOX_jlStD_siYKOf4vyiav4so"
+  var ytClient
+  var spClient
+  var YOUTUBE_API_KEY = "AIzaSyDQ8goZaggOX_jlStD_siYKOf4vyiav4so";
 
-  construct(this.ytClient, this.spClient) { }
+  construct(ytClient, spClient) {
+    this.ytClient = ytClient
+    this.spClient = spClient
+  }
 
-  // Fetches the basic info about a playlist (Title, Description, Art)
-  fun getPlaylist(id: string) -> Future {
+  fun getPlaylist(id) {
     if (id.startsWith("yt:")) {
-      let plId = id.substring(3);
-      return ytClient.get("/playlists", {
+      let plId = id.substring(3)
+      return ytClient.request("/playlists", {
         "part": "snippet",
         "id": plId,
-        "key": YT_KEY
-      }).then((resp) {
-        let item = resp.items[0];
-        return {
-          "id": id,
-          "name": item.snippet.title,
-          "description": item.snippet.description,
-          "externalUri": "https://www.youtube.com/playlist?list=${plId}",
-          "images": [
-            {
-              "url": item.snippet.thumbnails.high.url,
-              "width": 480,
-              "height": 360
-            }
-          ],
-          "owner": { "name": item.snippet.channelTitle }
-        };
-      });
+        "key": YOUTUBE_API_KEY
+      }).then((res) {
+         if (res["items"].isEmpty) return null
+         let item = res["items"][0]
+         return {
+           "id": id,
+           "name": item["snippet"]["title"],
+           "description": item["snippet"]["description"],
+           "externalUri": "https://www.youtube.com/playlist?list=" + plId,
+           "images": [
+              {
+                "url": item["snippet"]["thumbnails"]["default"]["url"],
+                "width": item["snippet"]["thumbnails"]["default"]["width"],
+                "height": item["snippet"]["thumbnails"]["default"]["height"]
+              }
+           ],
+           "owner": {
+             "id": item["snippet"]["channelId"],
+             "name": item["snippet"]["channelTitle"],
+             "externalUri": "https://www.youtube.com/channel/" + item["snippet"]["channelId"],
+             "images": []
+           }
+         }
+      })
     }
+    return null;
   }
 
-  // Fetches the actual songs inside that playlist
-  fun tracks(id: string, { offset: int, limit: int }) -> Future {
-    if (id.startsWith("yt:")) {
-      let plId = id.substring(3);
-      return ytClient.get("/playlistItems", {
-        "part": "snippet,contentDetails",
-        "playlistId": plId,
-        "maxResults": limit,
-        "key": YT_KEY
-      }).then((resp) {
-        let tracks = [];
-        for (let item in resp.items) {
-          let videoId = item.contentDetails.videoId;
-          tracks.add({
-            "id": "yt:${videoId}",
-            "name": item.snippet.title,
-            "externalUri": "https://www.youtube.com/watch?v=${videoId}",
-            "artists": [{ "name": item.snippet.videoOwnerChannelTitle }],
-            "album": null,
-            "durationMs": 0, // YouTube requires a separate call for duration
-            "explicit": false
-          });
-        }
-        return { 
-          "items": tracks, 
-          "total": resp.pageInfo.totalResults, 
-          "offset": offset, 
-          "limit": limit 
-        };
-      });
-    }
+  fun tracks(id, paging) {
+     // Fetch playlist items
+     return { "items": [], "total": 0, "offset": 0, "limit": 0 };
   }
+  
+  fun save(playlistId) {}
+  fun unsave(playlistId) {}
 }

@@ -1,7 +1,51 @@
-import 'segments/auth.ht'
-import 'segments/search.ht'
-import 'segments/track.ht'
-import 'segments/playlist.ht'
-import 'segments/others.ht'
+import "module:spotube_plugin" as spotube
+import "segments/auth.ht"
+import "segments/album.ht"
+import "segments/artist.ht"
+import "segments/browse.ht"
+import "segments/playlist.ht"
+import "segments/search.ht"
+import "segments/track.ht"
+import "segments/user.ht"
+import "segments/core.ht"
 
-// Spotube reads exported handlers from this file
+class YouTubeMetadataPlugin {
+  // Required endpoint properties
+  var auth
+  var album
+  var artist
+  var browse
+  var playlist
+  var search
+  var track
+  var user
+  var core
+
+  // HTTP clients
+  var ytClient
+  var spClient
+
+  construct() {
+    // Initialize HTTP clients based on the design PDF
+    // YouTube Data API v3 base URL
+    ytClient = spotube.HttpClient(
+      spotube.HttpBaseOptions(baseUrl: "https://www.googleapis.com/youtube/v3")
+    )
+    
+    // Spotify Web API
+    spClient = spotube.HttpClient(
+      spotube.HttpBaseOptions(baseUrl: "https://api.spotify.com/v1")
+    )
+
+    // Instantiate endpoints
+    auth = AuthEndpoint(ytClient, spClient)
+    album = AlbumEndpoint(ytClient, spClient)
+    artist = ArtistEndpoint(ytClient, spClient)
+    browse = BrowseEndpoint(ytClient, spClient)
+    playlist = PlaylistEndpoint(ytClient, spClient)
+    search = SearchEndpoint(ytClient, spClient)
+    track = TrackEndpoint(ytClient, spClient)
+    user = UserEndpoint(ytClient, spClient)
+    core = CorePlugin(ytClient, spClient)
+  }
+}

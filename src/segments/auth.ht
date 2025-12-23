@@ -1,40 +1,50 @@
 import "module:spotube_plugin" as spotube
 
 class AuthEndpoint {
-  var ytClient: HttpClient
-  var spClient: HttpClient
-  var controller: StreamController
+  var ytClient
+  var spClient
+  var controller
 
-  get authStateStream -> Stream => controller.stream
+  get authStateStream => controller.stream
 
-  construct (this.ytClient, this.spClient) {
-    controller = StreamController.broadcast()
+  construct(ytClient, spClient) {
+    this.ytClient = ytClient
+    this.spClient = spClient
+    controller = spotube.StreamController.broadcast()
   }
 
-  fun isAuthenticated() -> bool {
-    return spotube.LocalStorage.getString("spotify_token") != null;
+  // Returns true if user is authenticated (e.g., Spotify token exists)
+  fun isAuthenticated() {
+    let token = spotube.LocalStorage.getString("spotify_token")
+    return token != null;
   }
 
-  fun authenticate() -> Future {
-    let clientId = "aef7a2a6588d4a01b02aff9202020eec";
-    let redirectUri = "https://spotube.krtirtho.dev/auth/spotify/callback";
-    let uri = "https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=user-library-read";
+  // Begin authentication (e.g., open Spotify OAuth page)
+  fun authenticate() {
+    let clientId = "aef7a2a6588d4a01b02aff9202020eec"; // Placeholder
+    let redirectUri = "https://spotube.krtirtho.dev/auth/spotify/callback"
+    let scopes = "user-read-private,playlist-modify-public" // Example scopes
+    let uri = "https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scopes}"
+
+    let webview = spotube.Webview(uri: uri)
     
-    let webview = spotube.Webview(uri: uri);
     return webview.open().then((_) {
-      webview.onUrlRequestStream().listen((request) {
+      webview.onUrlRequestStream.listen((request) {
+        // Parse token from URL fragment (implicit grant type for example)
+        // URL format: .../callback#access_token=Mw...&token_type=Bearer...
         if (request.url.contains("access_token=")) {
-          let token = request.url.split("access_token=")[1].split("&")[0];
-          spotube.LocalStorage.setString("spotify_token", token);
-          controller.add({ "type": "login" }.toJson());
-          webview.close();
+           let token = request.url.split("access_token=")[1].split("&")[0]
+           spotube.LocalStorage.setString("spotify_token", token)
+           controller.add({ "type": "login" }.toJson())
+           webview.close();
         }
       });
-    });
+    })
   }
 
-  fun logout() -> Future {
-    spotube.LocalStorage.remove("spotify_token");
-    controller.add({ "type": "logout" }.toJson());
+  // Logout from Spotify
+  fun logout() {
+    spotube.LocalStorage.remove("spotify_token")
+    controller.add({ "type": "logout" }.toJson())
   }
 }

@@ -1,0 +1,9 @@
+class BrowseEndpoint {
+  var ytClient
+  var spClient
+
+  construct(ytClient, spClient) {
+    this.ytClient = ytClient
+    this.spClient = spClient
+  }
+}

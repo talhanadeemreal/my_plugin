@@ -1,6 +1,0 @@
-class AlbumEndpoint { construct() {} }
-class ArtistEndpoint { construct() {} }
-class BrowseEndpoint { construct() {} }
-// Removed PlaylistEndpoint from here because it's now in its own file
-class UserEndpoint { construct() {} }
-class CorePlugin { construct() {} }

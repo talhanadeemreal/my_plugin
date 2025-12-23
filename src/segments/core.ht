@@ -1,0 +1,22 @@
+class CorePlugin {
+  var ytClient
+  var spClient
+
+  construct(ytClient, spClient) {
+    this.ytClient = ytClient
+    this.spClient = spClient
+  }
+
+  fun checkUpdate(currentConfig) {
+    // Optional: Check GitHub for updates
+    return null
+  }
+
+  get support {
+    return "Contact the developer at your-email@example.com or visit the repository."
+  }
+
+  fun scrobble(details) {
+    // Optional: Implement scrobbling logic
+  }
+}

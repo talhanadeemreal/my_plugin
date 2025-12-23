@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "name": "youtube-spotify-source",
     "author": "Your Name",
-    "description": "Premium YouTube Audio with Spotify Metadata",
+    "description": "Provides music metadata and YouTube audio for Spotube",
     "entryPoint": "YouTubeMetadataPlugin",
     "apis": [
         "webview",
@@ -13,6 +13,6 @@
     "abilities": [
         "authentication"
     ],
-    "repository": "https://github.com/your-repo/plugin",
+    "repository": "https://github.com/YourRepo/spotube-youtube-spotify-plugin",
     "pluginApiVersion": "1.0.0"
 }

@@ -1,26 +1,54 @@
 class TrackEndpoint {
-  var ytClient: HttpClient
-  var spClient: HttpClient
-  let YT_KEY = "AIzaSyDQ8goZaggOX_jlStD_siYKOf4vyiav4so"
+  var ytClient
+  var spClient
+  var YOUTUBE_API_KEY = "AIzaSyDQ8goZaggOX_jlStD_siYKOf4vyiav4so";
 
-  construct(this.ytClient, this.spClient) { }
+  construct(ytClient, spClient) {
+    this.ytClient = ytClient
+    this.spClient = spClient
+  }
 
-  fun getTrack(id: string) -> Future {
-    let videoId = id.substring(3);
-    return ytClient.get("/videos", {
-      "part": "snippet,contentDetails",
-      "id": videoId,
-      "key": YT_KEY
-    }).then((resp) {
-      let item = resp.items[0]
-      return {
-        "id": id,
-        "name": item.snippet.title,
-        "externalUri": "https://www.youtube.com/watch?v=${videoId}",
-        "artists": [{ "name": item.snippet.channelTitle }],
-        "durationMs": 180000, // Placeholder
-        "explicit": false
-      };
-    });
+  fun getTrack(id) {
+    if (id.startsWith("yt:")) {
+      let videoId = id.substring(3)
+      return ytClient.request("/videos", {
+        "part": "snippet,contentDetails",
+        "id": videoId,
+        "key": YOUTUBE_API_KEY
+      }).then((res) {
+        if (res["items"].isEmpty) return null
+        let item = res["items"][0]
+        
+        // Duration parsing (ISO 8601) is complex in bare Hetu without libs.
+        // Assuming 0 or primitive parsing for now. 
+        // Real implementation would need a helper.
+        
+        return {
+          "id": id,
+          "name": item["snippet"]["title"],
+          "externalUri": "https://www.youtube.com/watch?v=" + videoId,
+          "artists": [
+            {
+               "id": item["snippet"]["channelId"],
+               "name": item["snippet"]["channelTitle"],
+               "externalUri": "https://www.youtube.com/channel/" + item["snippet"]["channelId"],
+               "images": []
+            }
+          ],
+          "album": null,
+          "durationMs": 0, // Placeholder
+          "explicit": false,
+          "isrc": null,
+          "images": [
+              {
+                "url": item["snippet"]["thumbnails"]["default"]["url"],
+                "width": item["snippet"]["thumbnails"]["default"]["width"],
+                "height": item["snippet"]["thumbnails"]["default"]["height"]
+              }
+           ]
+        }
+      })
+    }
+    return null;
   }
 }
