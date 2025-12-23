@@ -1,0 +1,32 @@
+class SearchEndpoint {
+  var ytClient: HttpClient
+  var spClient: HttpClient
+  let YT_KEY = "AIzaSyDQ8goZaggOX_jlStD_siYKOf4vyiav4so"
+
+  construct(this.ytClient, this.spClient) { }
+
+  get chips -> List => ["all", "tracks"]
+
+  fun all(query: string) -> Future {
+    return ytClient.get("/search", {
+      "part": "snippet",
+      "q": query,
+      "type": "video",
+      "key": YT_KEY
+    }).then((res) => {
+      let tracks = []
+      for (let item in res.items) {
+        tracks.add({
+          "id": "yt:${item.id.videoId}",
+          "name": item.snippet.title,
+          "externalUri": "https://www.youtube.com/watch?v=${item.id.videoId}",
+          "artists": [{ "name": item.snippet.channelTitle }],
+          "album": null,
+          "durationMs": 0,
+          "explicit": false
+        })
+      }
+      return { "tracks": tracks, "albums": [], "artists": [], "playlists": [] }
+    })
+  }
+}
