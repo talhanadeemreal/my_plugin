@@ -5,7 +5,7 @@ class SearchEndpoint {
 
   construct(this.ytClient, this.spClient) { }
 
-  get chips -> List => ["all", "tracks"]
+  get chips -> List => ["all", "tracks"];
 
   fun all(query: string) -> Future {
     return ytClient.get("/search", {
@@ -13,8 +13,8 @@ class SearchEndpoint {
       "q": query,
       "type": "video",
       "key": YT_KEY
-    }).then((res) => {
-      let tracks = []
+    }).then((res) {
+      let tracks = [];
       for (let item in res.items) {
         tracks.add({
           "id": "yt:${item.id.videoId}",
@@ -24,9 +24,9 @@ class SearchEndpoint {
           "album": null,
           "durationMs": 0,
           "explicit": false
-        })
+        });
       }
-      return { "tracks": tracks, "albums": [], "artists": [], "playlists": [] }
-    })
+      return { "tracks": tracks, "albums": [], "artists": [], "playlists": [] };
+    });
   }
 }

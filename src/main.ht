@@ -1,0 +1,7 @@
+import 'segments/auth.ht'
+import 'segments/search.ht'
+import 'segments/track.ht'
+import 'segments/playlist.ht'
+import 'segments/others.ht'
+
+// Spotube reads exported handlers from this file

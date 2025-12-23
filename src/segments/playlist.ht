@@ -13,7 +13,7 @@ class PlaylistEndpoint {
         "part": "snippet",
         "id": plId,
         "key": YT_KEY
-      }).then((resp) => {
+      }).then((resp) {
         let item = resp.items[0];
         return {
           "id": id,
@@ -28,8 +28,8 @@ class PlaylistEndpoint {
             }
           ],
           "owner": { "name": item.snippet.channelTitle }
-        }
-      })
+        };
+      });
     }
   }
 
@@ -42,10 +42,10 @@ class PlaylistEndpoint {
         "playlistId": plId,
         "maxResults": limit,
         "key": YT_KEY
-      }).then((resp) => {
-        let tracks = []
+      }).then((resp) {
+        let tracks = [];
         for (let item in resp.items) {
-          let videoId = item.contentDetails.videoId
+          let videoId = item.contentDetails.videoId;
           tracks.add({
             "id": "yt:${videoId}",
             "name": item.snippet.title,
@@ -54,15 +54,15 @@ class PlaylistEndpoint {
             "album": null,
             "durationMs": 0, // YouTube requires a separate call for duration
             "explicit": false
-          })
+          });
         }
         return { 
           "items": tracks, 
           "total": resp.pageInfo.totalResults, 
           "offset": offset, 
           "limit": limit 
-        }
-      })
+        };
+      });
     }
   }
 }

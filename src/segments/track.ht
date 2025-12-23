@@ -6,12 +6,12 @@ class TrackEndpoint {
   construct(this.ytClient, this.spClient) { }
 
   fun getTrack(id: string) -> Future {
-    let videoId = id.substring(3)
+    let videoId = id.substring(3);
     return ytClient.get("/videos", {
       "part": "snippet,contentDetails",
       "id": videoId,
       "key": YT_KEY
-    }).then((resp) => {
+    }).then((resp) {
       let item = resp.items[0]
       return {
         "id": id,
@@ -20,7 +20,7 @@ class TrackEndpoint {
         "artists": [{ "name": item.snippet.channelTitle }],
         "durationMs": 180000, // Placeholder
         "explicit": false
-      }
-    })
+      };
+    });
   }
 }
