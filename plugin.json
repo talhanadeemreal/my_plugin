@@ -14,5 +14,5 @@
         "authentication"
     ],
     "repository": "https://github.com/YourRepo/spotube-youtube-spotify-plugin",
-    "pluginApiVersion": "1.0.0"
+    "pluginApiVersion": "2.0.0"
 }
